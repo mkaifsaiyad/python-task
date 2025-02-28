@@ -16,12 +16,11 @@ router = APIRouter()
 @router.get("/resource", response_model=ListResourceResponse, status_code=status.HTTP_200_OK)
 async def get_all_resources(
         db: Annotated[AsyncSession, Depends(get_async_db_session)],
+        on_bench: bool = None
 ):
     count_stmt = select(
         func.count(Resource.id)
     ).where(Resource.deleted_at.is_(None))
-
-    result_count = (await db.execute(count_stmt)).scalar() or 0
 
     stmt = select(
         Resource.id,
@@ -30,6 +29,12 @@ async def get_all_resources(
         Resource.created_at,
         Resource.updated_at
     ).where(Resource.deleted_at.is_(None))
+
+    if on_bench is not None:
+        count_stmt = count_stmt.where(Resource.on_bench == on_bench)
+        stmt = stmt.where(Resource.on_bench == on_bench)
+
+    result_count = (await db.execute(count_stmt)).scalar() or 0
 
     result_rows = (await db.execute(stmt)).all()
 

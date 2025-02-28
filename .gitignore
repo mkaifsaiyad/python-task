@@ -1,6 +1,6 @@
 # created by virtualenv automatically
 .venv
 .idea
-.env
-alembic.ini
+.env/
+alembic.ini/
 alembic
